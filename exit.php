@@ -43,9 +43,9 @@ function determine_fee($conn, $license, $state, $current_datetime) {
 }	
 
 function end_parking_event($conn, $parking_event_id,$fee_amount,$current_datetime,$payment_id) {
-	$sql = "UPDATE ParkingEvent SET fee_amount=$fee_amount,time_end='$current_datetime',
+	$sql = "UPDATE ParkingEvent SET fee_amount=$fee_amount,time_end='$current_datetime'
 	           WHERE parking_event_id=$parking_event_id;";
-			   echo $sql;
+			  // echo $sql;
 	$result = $conn->query($sql);
 
 }
