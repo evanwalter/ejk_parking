@@ -25,7 +25,7 @@ CREATE TABLE Customer(
     prohibit_from_entering bool not null default false, -- delinquent on payment
     first_name nvarchar(100) NULL,
     last_name nvarchar(100) NULL,
-    email nvarchar(100) NULL,
+    email nvarchar(100) NULL unique,
     street_address nvarchar(100) NULL,
     postal_code varchar(25) NULL,
     state_code varchar(10) NULL,
