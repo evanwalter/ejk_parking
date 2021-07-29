@@ -2,6 +2,10 @@
 <html>
 <body>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
+<a href="./admin.php" >Admin Home Page</a><br><br>
+<a href="./admin_sec.php" >Add New Record</a><br><br>
+
+
 <?php
 /*   PAGE TO EDIT CUSTOMER SECURITY INFO
 
@@ -27,6 +31,9 @@ $is_employee = "0";
 $is_admin = "0";
 $is_fee_exempt = "0";
 $prohibit_from_entering = "0";
+$parking_event_fee_exempt = "0";
+$parking_event_id="";
+$time_start="";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $action = $_POST['action'];	
@@ -43,6 +50,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $state=$result_ret["state"];
   $license=$result_ret["license"];
   $customer_id=$result_ret["customer_id"];
+  $parking_event_id=$result_ret["parking_event_id"];
+  $time_start=$result_ret["time_start"];
+  if ($parking_event_id != "") {
+	  $parking_event_fee_exempt=$_POST['parking_event_fee_exempt'];
+  }
 
 /*  
  if (($customer_id == "")&&($email != "")&&($action=="add" )) {
@@ -55,6 +67,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   */
   if (($action=="update")&& ($customer_id != "")) {
 	  update_customer($customer_id,$license,$state,$is_employee,$is_admin,$is_fee_exempt,$prohibit_from_entering);
+	  if (($parking_event_id != "") && ($parking_event_fee_exempt == "1")){
+		  update_parking_event($parking_event_id,$parking_event_fee_exempt);
+	  }
   }
 
   if (($customer_id == "")&&($email != "")) {
@@ -77,6 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
  	echo "State: <input type=\"text\" name=\"state\" value=\"" . $state . "\"><br>";
 	echo "<input type=\"hidden\" name=\"action\" value=\"" . $action . "\">";
 	echo "<input type=\"hidden\" name=\"customer_id\" value=\"" . $customer_id . "\">";
+	echo "<input type=\"hidden\" name=\"parking_event_id\" value=\"" . $parking_event_id . "\">";
 	echo "<p style=\"color: red;\">". $message  ."</p>";
   
   
@@ -86,7 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$password =  "etA36wq51";  
 	$dbname = "garage_project";
 	
-	$result_ret = array("customer_id" => "", "license" => "","state" => "" );
+	$result_ret = array("customer_id" => "", "license" => "","state" => "","parking_event_id" =>"", "time_start" =>"" );
 	 
 	// Create connection
 	$conn = new mysqli("$servername", "$username", "$password", "$dbname");
@@ -94,8 +110,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if ($conn->connect_error) {
 	die("Connection failed: " . $conn->connect_error);
 	}
-	$sql = "SELECT a.customer_id, b.licence_number, b.state
-			FROM Customer a left outer join Vehicle b on a.customer_id=b.customer_id
+	$sql = "SELECT a.customer_id, b.licence_number, b.state,
+			       c.parking_event_id,c.time_start
+			FROM Customer a LEFT OUTER JOIN Vehicle b on a.customer_id=b.customer_id
+			                LEFT OUTER JOIN ParkingEvent c on b.vehicle_id=c.vehicle_id
+							          and c.time_end IS NULL 
 			where a.email='$email' or (licence_number='$license' and state='$state')";
 	$result = $conn->query($sql);
 
@@ -105,6 +124,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		  $result_ret["customer_id"]=  $row["customer_id"];
 		  $result_ret["license"]=  $row["licence_number"];
 		  $result_ret["state"]=  $row["state"];
+		  $result_ret["parking_event_id"]=  $row["parking_event_id"];
+		  $result_ret["time_start"]=  $row["time_start"];
 	  }
 	}
 	$conn->close();
@@ -186,7 +207,26 @@ function add_customer($email,$license,$state) {
 	return $result_ret;
 }	
 
-  
+ function update_parking_event($parking_event_id,$parking_event_fee_exempt) {
+	$servername = "127.0.0.1";
+	$username =   "garageuser"; 
+	$password =  "etA36wq51";  
+	$dbname = "garage_project";
+	
+	$result_ret = array("customer_id" => "", "license" => "","state" => "" );
+	 
+	// Create connection
+	$conn = new mysqli("$servername", "$username", "$password", "$dbname");
+	// Check connection
+	if ($conn->connect_error) {
+	die("Connection failed: " . $conn->connect_error);
+	}
+	$sql = "UPDATE ParkingEvent SET fee_exempt=$parking_event_fee_exempt
+			WHERE parking_event_id=$parking_event_id;";
+			
+	$result = $conn->query($sql);	
+	$conn->close();  
+ }
 ?>
 
 <?php   
@@ -225,6 +265,21 @@ Prohibit from entering: <select name="prohibit_from_entering" default="0">
    <option value="1">Yes</option>
    <option value="0" selected="selected">No</option>
 </select>
+<br>
+<?php 
+ if ($parking_event_id != "") {
+		echo "<br>Currently parked since " . $time_start;
+?>
+<br>
+Charge for current parking event: <select name="parking_event_fee_exempt" default="0">
+   <option value="1">Yes</option>
+   <option value="0" selected>No</option>
+</select>
+<br>
+
+<?php 
+ };
+?>
 
 <br>
    <input id="update" type="submit" value="Update Customer"/>
