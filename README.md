@@ -2,7 +2,8 @@
 
 Camera calls API to record Vehicle Requesting to Enter Garage:
 Example:
-http://127.0.0.1:4000/enter.php?license=test&state=TX
+ http://127.0.0.1:4000/enter.php?camera=1&key=tnlkc6nfe363atedae94h&license=testcar&state=TX  
+
 
 Reply:
 { "status": 200,"vehicle_id" 9,
@@ -11,7 +12,7 @@ Reply:
 
 Camera calls API to get Fee for Vehicle Requesting to Exit Garage:
 Example:
-http://127.0.0.1:4000/exit.php?license=test&state=TX
+ http://127.0.0.1:4000/exit.php?camera=1&key=tnlkc6nfe363atedae94h&license=testcar&state=TX 
 
 Reply:
 { "status": 200,"vehicle_id" 9,"customer_id" 0,"fee": "1.00",
