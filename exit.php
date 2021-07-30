@@ -22,12 +22,20 @@ function authenticate_camera($conn,$camera_id,$auth_key){
 	return $grant_access;
 }
 
+
+/**  CALCULATES THE FEE BASES ON:
+	1. WHETHER CUSTOMER EXISTS AND IS FEE EXEMPT
+	2. WHETHER THE CURRENT PARKING EVENT WAS MARKED FEE EXEMPT
+	3. WHETHER THE CURRENT PARKING EVENT HAS BEEN PAID
+	4. CALCULATES FEE OFF OF PAY MATRIX
+**/
 function determine_fee($conn, $license, $state, $current_datetime) {
 	$fee = array("parking_event_id" => "", "vehicle_id" => "","fee" => "","customer_id" => ""  );
 	$sql = "SELECT a.* ,
 			CASE WHEN a.fee_exempt=true THEN 0.00 
 				 WHEN fee_amount=0 AND fee_amount IS NOT NULL then 0.00
 				 WHEN COALESCE(b.is_fee_exempt,false)=true THEN 0.00 
+				 WHEN COALESCE(py.accepted,false)= true THEN 0.00
 				 ELSE fm.fee END AS fee,
 		    COALESCE(customer_id,0) as customer_id
 			FROM ParkingEvent a INNER JOIN 
@@ -42,6 +50,7 @@ function determine_fee($conn, $license, $state, $current_datetime) {
 			INNER JOIN FeeMatrix fm   
 					ON TIME_FORMAT(TIMEDIFF('$current_datetime',a.time_start),'%H')
 					BETWEEN mintime AND maxtime
+			LEFT OUTER JOIN Payment py on a.parking_event_id=py.parking_event_id
 				;
  ";
 	$result = $conn->query($sql);
