@@ -10,7 +10,9 @@ GRANT ALL privileges ON garage_project.* TO 'garageuser'@'localhost';
 
 
 FLUSH PRIVILEGES;
-
+DROP TABLE IF EXISTS Payment;
+DROP TABLE IF EXISTS PaymentMethod;
+DROP TABLE IF EXISTS PaymentMethodType;
 DROP TABLE IF EXISTS ParkingEvent;
 DROP TABLE IF EXISTS Vehicle;
 DROP TABLE IF EXISTS Customer;
@@ -36,7 +38,7 @@ CREATE TABLE Customer(
 CREATE TABLE VEHICLE(
 	vehicle_id integer NOT NULL AUTO_INCREMENT primary key,
 	licence_number varchar(50) NOT NULL,
-    state varchar(10) NOT NULL,
+    state varchar(25) NOT NULL,
     customer_id integer NULL,
     unique(licence_number,state),
     FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE
@@ -66,7 +68,50 @@ CREATE TABLE FeeMatrix(
     maxtime numeric(10,2),
     fee     numeric(10,2)
 );
-    
+
+/*        RECORD THE PAYMENT TYPES AVAILABLE ****/ 
+DROP TABLE IF EXISTS PaymentMethodType;
+CREATE TABLE PaymentMethodType(
+	payment_method_type_id integer NOT NULL AUTO_INCREMENT primary key,
+    payment_type_name varchar(25) UNIQUE,
+    payment_type_description varchar(100) NULL
+);
+INSERT INTO PaymentMethodType(payment_type_name) VALUES('Visa');
+INSERT INTO PaymentMethodType(payment_type_name) VALUES('MC');
+INSERT INTO PaymentMethodType(payment_type_name) VALUES('AmExpress');
+INSERT INTO PaymentMethodType(payment_type_name) VALUES('Paypal');
+INSERT INTO PaymentMethodType(payment_type_name) VALUES('Venmo');
+
+--  SELECT * from PaymentMethodType
+
+DROP TABLE IF EXISTS PaymentMethod;
+CREATE TABLE PaymentMethod(
+	payment_method_id integer NOT NULL AUTO_INCREMENT primary key,
+    customer_id integer,
+    payment_method_type_id integer,
+    card_number varchar(100) NULL,
+    card_month char(2) NULL,
+    card_year char(2) NULL,
+    account_id varchar(50) NULL,     -- FOR ONLINE PAYMENT SETS
+    account_password varchar(100) NULL,
+    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE,
+    FOREIGN KEY (payment_method_type_id) REFERENCES PaymentMethodType(payment_method_type_id) ON DELETE CASCADE
+);
+
+/*        RECORD THE ACTUAL PAYMENT INCIDENT ****/ 
+DROP TABLE IF EXISTS Payment;
+CREATE TABLE Payment(
+	payment_id integer NOT NULL AUTO_INCREMENT primary key,
+    parking_event_id integer,
+    payment_method_id integer,
+    payment_date datetime,
+    accepted boolean,
+    confirmation_number varchar(100) NULL,
+    FOREIGN KEY (parking_event_id) REFERENCES ParkingEvent(parking_event_id) ON DELETE CASCADE,
+    FOREIGN KEY (payment_method_id) REFERENCES PaymentMethod(payment_method_id) ON DELETE CASCADE
+);
+  
+  Select * from FeeMatrix
 /************** LOADING TEST DATA ******************/    
 
 INSERT INTO CUSTOMER(online_username,online_password,is_employee,is_admin) 
@@ -84,7 +129,6 @@ INSERT INTO Vehicle(customer_id,licence_number,state) VALUES (4,'63fdt','TX');
  
 -- select * from VEHICLE;
 
-
 INSERT INTO Camera(location,authentication_key) VALUES ('Main entry gate','tnlkc6nfe363atedae94h');
 INSERT INTO Camera(location,authentication_key) VALUES ('Main exit gate','tnlkc6nfe363atedae94h');
 
@@ -96,4 +140,11 @@ INSERT INTO FeeMatrix VALUES(8.01,24.00,10.00);
 INSERT INTO FeeMatrix VALUES(24.01,99999.00,20.00);
 
 -- SELECT * FROM FeeMatrix
+/*
+SELECT * from ParkingEvent;
+SELECT * FROM Customer;
+SELECT * from Vehicle
+
+
+*/
 
