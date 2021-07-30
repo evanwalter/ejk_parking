@@ -7,6 +7,7 @@
 </head>
 <body>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
+<div class="container">
 <input class="btn btn-primary" type="button" onclick="location.href='admin.php'" value="Admin Home Page"> <br>
 <input class="btn btn-primary" type="button" onclick="location.href='admin_sec.php'" value="Update Existing Record"> <br>
 <?php
@@ -175,7 +176,7 @@ Charge for current parking event: <select name="parking_event_fee_exempt" defaul
 };
 ?>
 
-
+</div>
 </form>
 
 </body>
