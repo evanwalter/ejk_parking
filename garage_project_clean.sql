@@ -89,6 +89,7 @@ CREATE TABLE PaymentMethod(
 	payment_method_id integer NOT NULL AUTO_INCREMENT primary key,
     customer_id integer NULL,
     payment_method_type_id integer,
+    payment_method_alias varchar(100) NULL,
     card_number varchar(100) NULL,
     card_month char(2) NULL,
     card_year char(2) NULL,
@@ -148,6 +149,13 @@ Select * from Camera;
 SELECT * from ParkingEvent;
 SELECT * FROM Customer;
 SELECT * from Vehicle
+
+update paymentmethod set customer_id=1 where payment_method_id=1
+update Vehicle set customer_id=1 where vehicle_id=24
+ 
+
+select * 
+from paymentmethod;
 
 
 */
