@@ -87,13 +87,14 @@ INSERT INTO PaymentMethodType(payment_type_name) VALUES('Venmo');
 DROP TABLE IF EXISTS PaymentMethod;
 CREATE TABLE PaymentMethod(
 	payment_method_id integer NOT NULL AUTO_INCREMENT primary key,
-    customer_id integer,
+    customer_id integer NULL,
     payment_method_type_id integer,
     card_number varchar(100) NULL,
     card_month char(2) NULL,
     card_year char(2) NULL,
     account_id varchar(50) NULL,     -- FOR ONLINE PAYMENT SETS
     account_password varchar(100) NULL,
+	auto_pay boolean default false,
     FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE,
     FOREIGN KEY (payment_method_type_id) REFERENCES PaymentMethodType(payment_method_type_id) ON DELETE CASCADE
 );
@@ -141,6 +142,9 @@ INSERT INTO FeeMatrix VALUES(24.01,99999.00,20.00);
 
 -- SELECT * FROM FeeMatrix
 /*
+
+Select * from Camera;
+
 SELECT * from ParkingEvent;
 SELECT * FROM Customer;
 SELECT * from Vehicle
