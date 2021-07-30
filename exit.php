@@ -2,9 +2,25 @@
 <html>
 <body>
 <!--  in directory  php -S 127.0.0.1:4000  -->
-<!--  http://127.0.0.1:4000/enter.php?license=teste&state=TX   -->
+<!--   http://127.0.0.1:4000/exit.php?camera=1&key=tnlkc6nfe363atedae94h&license=testcar&state=TX   -->
 
 <?php
+
+function authenticate_camera($conn,$camera_id,$auth_key){
+	$grant_access = False;
+	$sql = "SELECT camera_id
+			FROM Camera
+			where camera_id=$camera_id and authentication_key='$auth_key';";
+	$result = $conn->query($sql);
+
+	if ($result->num_rows > 0) {
+	  // output data of each row
+	  while($row = $result->fetch_assoc()) {
+		  $grant_access=True;
+	  }
+	}	
+	return $grant_access;
+}
 
 function determine_fee($conn, $license, $state, $current_datetime) {
 	$fee = array("parking_event_id" => "", "vehicle_id" => "","fee" => "","customer_id" => ""  );
@@ -44,8 +60,8 @@ function determine_fee($conn, $license, $state, $current_datetime) {
 
 function end_parking_event($conn, $parking_event_id,$fee_amount,$current_datetime,$payment_id) {
 	$sql = "UPDATE ParkingEvent SET fee_amount=$fee_amount,time_end='$current_datetime'
-	           WHERE parking_event_id=$parking_event_id;";
-			  // echo $sql;
+	WHERE parking_event_id=$parking_event_id;";
+			   //echo $sql;
 	$result = $conn->query($sql);
 
 }
@@ -54,6 +70,7 @@ function end_parking_event($conn, $parking_event_id,$fee_amount,$current_datetim
 // GET THE VARIABLES
 $camera_id = $_GET["camera"];
 $auth_key = $_GET["key"];
+$grant_access = False;
 
 $license=$_GET["license"];
 $state=$_GET["state"];
@@ -79,6 +96,13 @@ $conn = new mysqli("$servername", "$username", "$password", "$dbname");
 // Check connection
 if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
+}
+
+// AUTHENTICATE CAMERA
+$grant_access=authenticate_camera($conn,$camera_id,$auth_key);
+
+if (!$grant_access==True){
+	die("{ \"status\": 400,\"message\": \"Unable to authenticate\" }");
 }
 
 //  SEARCHING FOR VEHICLE

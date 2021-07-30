@@ -2,9 +2,29 @@
 <html>
 <body>
 <!--  in directory  php -S 127.0.0.1:4000  -->
-<!--  http://127.0.0.1:4000/enter.php?license=teste&state=TX   -->
+<!--  http://127.0.0.1:4000/enter.php?camera=1&key=tnlkc6nfe363atedae94h&license=testcar&state=TX  -->
+<!--  
+cd c:\inetpub\wwwroot\php 
+php -S 127.0.0.1:4000
+-->
 
 <?php
+
+function authenticate_camera($conn,$camera_id,$auth_key){
+	$grant_access = False;
+	$sql = "SELECT camera_id
+			FROM Camera
+			where camera_id=$camera_id and authentication_key='$auth_key';";
+	$result = $conn->query($sql);
+
+	if ($result->num_rows > 0) {
+	  // output data of each row
+	  while($row = $result->fetch_assoc()) {
+		  $grant_access=True;
+	  }
+	}	
+	return $grant_access;
+}
 
 function search_vehicle($conn, $license, $state) {
 	$vid = "";
@@ -20,7 +40,6 @@ function search_vehicle($conn, $license, $state) {
 		  $vid=  $row["vehicle_id"];
 	  }
 	}
-
 	return $vid;
 }	
 
@@ -45,7 +64,7 @@ function insert_vehicle($conn, $license, $state) {
 }
 
 function add_parking_event($conn, $vehicle_id,$current_time) {
-	$sql = "INSERT INTO ParkingEvent(vehicle_id,time_start) VALUES ($vehicle_id,'$current_time')";
+	$sql = "INSERT INTO ParkingEvent(vehicle_id,time_start) VALUES ($vehicle_id,'$current_time');";
 	$result = $conn->query($sql);
 }
 
@@ -53,7 +72,7 @@ function add_parking_event($conn, $vehicle_id,$current_time) {
 // GET THE VARIABLES
 $camera_id = $_GET["camera"];
 $auth_key = $_GET["key"];
-
+$grant_access = False;
 $license=$_GET["license"];
 $state=$_GET["state"];
 
@@ -76,6 +95,12 @@ $conn = new mysqli("$servername", "$username", "$password", "$dbname");
 // Check connection
 if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
+}
+// AUTHENTICATE CAMERA
+$grant_access=authenticate_camera($conn,$camera_id,$auth_key);
+
+if (!$grant_access==True){
+	die("{ \"status\": 400,\"message\": \"Unable to authenticate\" }");
 }
 
 //  SEARCHING FOR VEHICLE
