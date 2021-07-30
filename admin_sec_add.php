@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
+<head>
+
+<link href="bootstrap.min.css" rel="stylesheet">  
+
+</head>
 <body>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
-<a href="./admin.php" >Admin Home Page</a><br><br>
-<a href="./admin_sec.php" >update existing record</a><br><br>
+<input class="btn btn-primary" type="button" onclick="location.href='admin.php'" value="Admin Home Page"> <br>
+<input class="btn btn-primary" type="button" onclick="location.href='admin_sec.php'" value="Update Existing Record"> <br>
 <?php
 
 $action ="lookup";
@@ -39,11 +44,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $is_admin = $_POST['is_admin'];
   $is_fee_exempt = $_POST['is_fee_exempt'];
   $prohibit_from_entering = $_POST['prohibit_from_entering'];
-  $result_ret=lookup_customer($email,$license,$state);
+  $result_ret=lookup_customer($email,$license,$state,$is_employee,$is_admin,$is_fee_exempt,$prohibit_from_entering);
   if ($customer_id  != "") {
 	$message="Customer already exists";
   } else {
-	  $customer_id=add_customer($email,$license,$state);
+	  $customer_id=add_customer($email,$license,$state,$is_employee,$is_admin,$is_fee_exempt,$prohibit_from_entering);
 	  if ($customer_id != ""){
 		  $message="Record successfully created!";
 	  }
@@ -86,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }	
 
 
-function add_customer($email,$license,$state) {
+function add_customer($email,$license,$state,$is_employee,$is_admin,$is_fee_exempt,$prohibit_from_entering) {
 	$servername = "127.0.0.1";
 	$username =   "garageuser"; 
 	$password =  "etA36wq51";  
@@ -101,7 +106,8 @@ function add_customer($email,$license,$state) {
 	die("Connection failed: " . $conn->connect_error);
 	}
 
-	$sql = "INSERT INTO Customer(email) values ('$email');
+	$sql = "INSERT INTO Customer(email,is_employee,is_admin,is_fee_exempt,prohibit_from_entering) 
+			values ('$email',$is_employee,$is_admin,$is_fee_exempt,$prohibit_from_entering);
 	";
 	$result = $conn->query($sql);	
 	
@@ -137,8 +143,8 @@ if ($message != "")
 <input type="text" name="state"> <br>
 <br>
 Is Employee: <select name="is_employee">
-   <option value="1">Yes</option>
-   <option value="0" selected>No</option>
+   <option value="1" selected>Yes</option>
+   <option value="0" >No</option>
 </select>
 <br>
 Is Admin: <select name="is_admin">
@@ -147,8 +153,8 @@ Is Admin: <select name="is_admin">
 </select>
 <br>
 Is Fee Exempt: <select name="is_fee_exempt">
-   <option value="1">Yes</option>
-   <option value="0" selected>No</option>
+   <option value="1" selected>Yes</option>
+   <option value="0" >No</option>
 </select>
 <br>
 Prohibit from entering: <select name="prohibit_from_entering" default="0">

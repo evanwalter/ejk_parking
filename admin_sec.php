@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
+<head>
+
+<link href="bootstrap.min.css" rel="stylesheet">  
+
+</head>
 <body>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
-<a href="./admin.php" >Admin Home Page</a><br><br>
-<a href="./admin_sec.php" >Add New Record</a><br><br>
+<input class="btn btn-primary" type="button" onclick="location.href='admin.php'" value="Admin Home Page"> <br>
+<input  class="btn btn-primary" type="button" onclick="location.href='admin_sec_add.php'" value="Add New Record"> <br>
 
 
 <?php
@@ -102,7 +107,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$password =  "etA36wq51";  
 	$dbname = "garage_project";
 	
-	$result_ret = array("customer_id" => "", "license" => "","state" => "","parking_event_id" =>"", "time_start" =>"" );
+	$result_ret = array("customer_id" => "", "license" => "","state" => "",
+		"parking_event_id" =>"", "time_start" =>"" ,"is_employee" => "");
 	 
 	// Create connection
 	$conn = new mysqli("$servername", "$username", "$password", "$dbname");
@@ -111,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	die("Connection failed: " . $conn->connect_error);
 	}
 	$sql = "SELECT a.customer_id, b.licence_number, b.state,
-			       c.parking_event_id,c.time_start
+			       c.parking_event_id,c.time_start,a.is_employee
 			FROM Customer a LEFT OUTER JOIN Vehicle b on a.customer_id=b.customer_id
 			                LEFT OUTER JOIN ParkingEvent c on b.vehicle_id=c.vehicle_id
 							          and c.time_end IS NULL 
@@ -125,6 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		  $result_ret["license"]=  $row["licence_number"];
 		  $result_ret["state"]=  $row["state"];
 		  $result_ret["parking_event_id"]=  $row["parking_event_id"];
+		  $result_ret["is_employee"]=  $row["is_employee"];
 		  $result_ret["time_start"]=  $row["time_start"];
 	  }
 	}
@@ -246,10 +253,25 @@ if ( $action == "add") {
 } else {
 	?>
 <br>
-Is Employee: <select name="is_employee">
-   <option value="1">Yes</option>
+Is Employee:
+<?php  
+echo $is_employee;
+if ($is_employee=="1"){
+?>
+ <select name="is_employee">
+   <option value="1" selected>Yes</option>
+   <option value="0">No</option>
+ </select>
+<?php  
+} else {
+?>
+ <select name="is_employee">
+  <option value="1">Yes</option>
    <option value="0" selected>No</option>
-</select>
+ </select>
+<?php  
+}
+?>
 <br>
 Is Admin: <select name="is_admin">
    <option value="1">Yes</option>
