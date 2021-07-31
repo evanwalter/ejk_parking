@@ -8,8 +8,10 @@
 <body>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
 <div class="container">
-<input class="btn btn-primary" type="button" onclick="location.href='admin.php'" value="Admin Home Page"> <br>
+<input class="btn btn-primary" type="button" onclick="location.href='admin.php'" value="Admin Home Page"> 
 <input class="btn btn-primary" type="button" onclick="location.href='admin_sec.php'" value="Update Existing Record"> <br>
+<br>
+
 <?php
 
 $action ="lookup";
@@ -139,36 +141,36 @@ if ($message != "")
 }  else {
 ?>
 
-<input type="text" name="email"> <br>
-<input type="text" name="license"> <br>
-<input type="text" name="state"> <br>
-<br>
-Is Employee: <select name="is_employee">
+<table>
+<tr><td>Email: </td><td><input type="text" name="email"> </td></tr>
+<tr><td>License: </td><td><input type="text" name="license"> </td></tr>
+<tr><td>State: </td><td><input type="text" name="state"> </td></tr>
+<tr><td>
+Is Employee:  </td><td><select name="is_employee">
    <option value="1" selected>Yes</option>
    <option value="0" >No</option>
-</select>
-<br>
-Is Admin: <select name="is_admin">
+</select></td></tr>
+<tr><td>
+Is Admin:  </td><td><select name="is_admin">
    <option value="1">Yes</option>
    <option value="0" selected>No</option>
-</select>
-<br>
-Is Fee Exempt: <select name="is_fee_exempt">
+</select></td></tr>
+<tr><td>
+Is Fee Exempt:  </td><td><select name="is_fee_exempt">
    <option value="1" selected>Yes</option>
    <option value="0" >No</option>
-</select>
-<br>
-Prohibit from entering: <select name="prohibit_from_entering" default="0">
+</select></td></tr>
+<tr><td>
+Prohibit from entering:  </td><td><select name="prohibit_from_entering" default="0">
    <option value="1">Yes</option>
    <option value="0" selected="selected">No</option>
-</select>
-<br>
-<br>
-Charge for current parking event: <select name="parking_event_fee_exempt" default="0">
+</select></td></tr>
+<tr><td>
+Charge for current parking event:  </td><td><select name="parking_event_fee_exempt" default="0">
    <option value="1">Yes</option>
    <option value="0" selected>No</option>
-</select>
-<br>
+</select></td></tr>
+</table>
 <br>
    <input id="update" type="submit" value="Create Record"/>
 
